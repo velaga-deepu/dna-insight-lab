@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% set active_page = "reports" %}
+
+{% block title %}Reports{% endblock %}
+
+{% block content %}
+<section class="page-head container">
+  <span class="kicker">Analysis history · Lab reports</span>
+  <h1>Saved Analyses &amp; Lab Reports</h1>
+  <p>Every analysis saved from the Analyzer is stored in this application's SQLite database.
+     Open a saved analysis to view the full lab-style report, then print or export it.</p>
+</section>
+
+<section class="container reports-layout">
+  <div id="reportsListWrap">
+    {% if saved %}
+    <div class="panel panel-pad">
+      <div class="table-scroll">
+        <table class="data-table" id="reportsTable">
+          <thead>
+            <tr><th>Title</th><th>Saved</th><th>Length</th><th>GC%</th><th>AT%</th><th>Source</th><th class="actions-col">Actions</th></tr>
+          </thead>
+          <tbody>
+            {% for row in saved %}
+            <tr data-id="{{ row['id'] }}">
+              <td class="title-cell">{{ row['title'] }}</td>
+              <td>{{ row['created_at'] }}</td>
+              <td>{{ row['sequence_length'] }} bp</td>
+              <td>{{ '%.2f'|format(row['gc_percent']) }}%</td>
+              <td>{{ '%.2f'|format(row['at_percent']) }}%</td>
+              <td><span class="type-chip">{{ 'Demo' if 'Demo' in row['title'] or 'demo' in row['title'] else 'Custom' }}</span></td>
+              <td class="actions-col">
+                <button class="btn btn-secondary btn-small open-report" data-id="{{ row['id'] }}" type="button">View report</button>
+                <button class="btn btn-danger btn-small delete-report" data-id="{{ row['id'] }}" type="button">Delete</button>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <h3>No saved analyses yet</h3>
+      <p>Run an analysis in the Analyzer and press <strong>Save Analysis</strong> or
+         <strong>Generate Lab Report</strong> — saved analyses appear here, stored in SQLite.</p>
+      <div class="actions">
+        <a href="{{ url_for('analyzer_page') }}?demo=short_demo" class="btn btn-primary">Try it with a demo sequence</a>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+
+  <div id="reportViewer" class="hidden">
+    <div class="report-toolbar no-print">
+      <button class="btn btn-secondary" id="btnBackToReports" type="button">← Back to list</button>
+      <button class="btn btn-primary" id="btnPrintReport" type="button">Print / Export PDF</button>
+      <span class="muted small" style="align-self:center">Use your browser's print dialog and choose
+        “Save as PDF” to export a PDF copy of this report.</span>
+    </div>
+    <div class="report-doc" id="reportDocument"><!-- rendered by JS --></div>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/reports.js') }}"></script>
+{% endblock %}

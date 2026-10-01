@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% set active_page = "about" %}
+
+{% block title %}About{% endblock %}
+
+{% block content %}
+<section class="page-head container">
+  <span class="kicker">About</span>
+  <h1>About DNA Insight Lab</h1>
+  <p>An interactive bioinformatics platform for guided DNA sequence analysis.</p>
+</section>
+
+<section class="container about-layout">
+  <div class="panel panel-pad about-block">
+    <h2>What it does</h2>
+    <p>DNA Insight Lab connects validation, composition analysis, sequence transformations, translation,
+       ORF detection, comparison, visualization and reporting into one guided workflow:
+       <strong>DNA Input → Analysis → Comparison → Interpretation → Visualization → Report</strong>.</p>
+    <p>It is designed for classrooms, lab-style demonstrations and anyone learning computational
+       bioinformatics. Every result is computed from the exact sequence supplied, and every section of
+       the interface shows real computed values rather than examples.</p>
+  </div>
+
+  <div class="panel panel-pad about-block">
+    <h2>How the analysis works</h2>
+    <p>A Python/Flask backend performs all computation, using Biopython for molecular-type aware sequence
+       operations. The explanation layer is <strong>rule-based and templated</strong> — every plain-language
+       description is generated from the actual computed numbers. No external AI service is involved, and
+       no analysis step requires an internet connection.</p>
+  </div>
+
+  <div class="panel panel-pad about-block">
+    <h2>Technology stack</h2>
+    <ul class="tech-list">
+      <li><strong>Python</strong> — core bioinformatics algorithms and application logic</li>
+      <li><strong>Flask</strong> — backend server, routing and orchestration</li>
+      <li><strong>Jinja2</strong> — server-side rendering of every page</li>
+      <li><strong>HTML5 / CSS3</strong> — structure, layout, responsive design and styling</li>
+      <li><strong>Vanilla JavaScript</strong> — client-side interactions and chart integration</li>
+      <li><strong>Biopython</strong> — biological sequence-processing operations</li>
+      <li><strong>SQLite</strong> — persistence for saved analyses and reports</li>
+      <li><strong>JSON / CSV</strong> — demo sequences and demo comparison data</li>
+      <li><strong>Chart.js</strong> — dynamic charts generated from real analysis results</li>
+    </ul>
+  </div>
+
+  <div class="panel panel-pad about-block">
+    <h2>Scientific scope</h2>
+    <div class="scope-callout">
+      <strong>This platform is intended for educational bioinformatics and does not provide medical
+      diagnosis, clinical interpretation, or forensic identification.</strong>
+    </div>
+    <p style="margin-top:0.6rem;">Sequence differences found by the comparison tool do not establish
+      disease, clinical significance, genetic risk or identity. Results are computational observations of
+      the sequences you supply.</p>
+  </div>
+
+  <div class="panel panel-pad about-block">
+    <h2>Future scope</h2>
+    <p class="muted">Planned extensions, <strong>not</strong> current features:</p>
+    <ul class="future-list">
+      <li><strong>Simulated forensic STR matching</strong> — an educational module using simulated
+        short-tandem-repeat profiles. Simulated data only; no real identification.</li>
+      <li><strong>Genetic-condition educational module</strong> — biological background for conditions
+        such as sickle-cell disease and cystic fibrosis, for learning purposes only.</li>
+    </ul>
+  </div>
+</section>
+{% endblock %}

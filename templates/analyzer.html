@@ -1,0 +1,228 @@
+{% extends "base.html" %}
+{% set active_page = "analyzer" %}
+
+{% block title %}Analyzer{% endblock %}
+
+{% block content %}
+<section class="page-head container">
+  <span class="kicker">Single-sequence analysis</span>
+  <h1>DNA Analyzer</h1>
+  <p>Load a demo sequence or enter your own. All computation runs on this server.</p>
+</section>
+
+<section class="container analyzer-layout">
+
+  <!-- Input -->
+  <div class="mode-banner">
+    <span class="label">Current input:</span>
+    <span id="sourceStatus" class="status-line status-user">No sequence selected</span>
+    <span id="sourceDetail" class="muted small"></span>
+    <span style="flex:1"></span>
+    <button class="btn btn-secondary btn-small" id="btnResetInput" type="button">Reset input</button>
+  </div>
+
+  <div class="input-columns">
+    <div class="panel input-card" id="demoCard">
+      <span class="mode-tag demo">Demo</span>
+      <h3>Choose a demonstration sequence</h3>
+      <div class="demo-list" id="demoList"></div>
+      <div id="demoPreview" class="demo-preview hidden">
+        <div class="pv-head">
+          <span class="pv-name" id="demoPreviewName"></span>
+          <span class="pv-len" id="demoPreviewLen"></span>
+        </div>
+        <div class="pv-seq mono" id="demoPreviewSeq"></div>
+        <div class="demo-loaded-note" id="demoLoadedNote">Demo sequence loaded into the analyzer below.</div>
+      </div>
+    </div>
+
+    <div class="panel input-card" id="customCard">
+      <span class="mode-tag custom">Your sequence</span>
+      <h3>Enter your own DNA sequence</h3>
+      <div class="field">
+        <label for="sequenceInput">Your DNA sequence</label>
+        <textarea id="sequenceInput" rows="6" spellcheck="false"
+          placeholder="Paste or type a DNA sequence using A, T, G and C..."></textarea>
+      </div>
+      <p class="load-note">Case, whitespace and FASTA-style headers are handled automatically.</p>
+      <div class="analyze-row" style="border-top:none; padding-top:0; margin-top:0.5rem;">
+        <button class="btn btn-secondary" id="btnValidate" type="button">Validate Sequence</button>
+        <span id="validateSpinner" class="loading-inline hidden"><span class="spinner"></span>Validating…</span>
+      </div>
+      <div id="validationMessage" class="message hidden"></div>
+    </div>
+  </div>
+
+  <div class="panel panel-pad">
+    <div class="analyze-row" style="margin-top:0; padding-top:0; border-top:none;">
+      <button class="btn btn-primary" id="btnAnalyze" type="button">Analyze DNA</button>
+      <span id="analyzeSpinner" class="loading-inline hidden"><span class="spinner"></span>Computing…</span>
+      <button class="btn btn-secondary" id="btnClear" type="button">Clear</button>
+      <span class="row-note">Results are computed from the sequence shown above.</span>
+    </div>
+  </div>
+
+  <div id="emptyState" class="empty-state">
+    <h3>No analysis yet</h3>
+    <p>Enter a DNA sequence or load a demo sequence to begin.</p>
+    <div class="actions">
+      <a href="#customCard" class="btn btn-secondary" id="emptyEnter">Enter DNA</a>
+      <button class="btn btn-primary" id="emptyLoadDemo" type="button">Load Demo</button>
+    </div>
+  </div>
+
+  <div id="errorBox" class="message error hidden" role="alert"></div>
+
+  <!-- RESULTS — result first -->
+  <div id="resultsArea" class="results hidden">
+
+    <!-- Result-first metrics -->
+    <div class="panel results-hero">
+      <div class="rh-top">
+        <span class="rh-title">Analysis results</span>
+        <div class="head-tools">
+          <span id="resultSourceChip" class="status-line status-ok"></span>
+          <span id="analyzeTime" class="muted small mono"></span>
+        </div>
+      </div>
+      <div class="metric-grid">
+        <div class="metric hot"><span class="m-label">GC content</span><span class="m-value" id="mGC"></span></div>
+        <div class="metric"><span class="m-label">AT content</span><span class="m-value" id="mAT"></span></div>
+        <div class="metric"><span class="m-label">Length</span><span class="m-value" id="mLen"></span></div>
+        <div class="metric"><span class="m-label">A</span><span class="m-value" id="mA"></span></div>
+        <div class="metric"><span class="m-label">T</span><span class="m-value" id="mT"></span></div>
+        <div class="metric"><span class="m-label">G</span><span class="m-value" id="mG"></span></div>
+        <div class="metric"><span class="m-label">C</span><span class="m-value" id="mC"></span></div>
+      </div>
+      <p class="explanation" id="explOneLiner"></p>
+      <details class="disclosure">
+        <summary>View full sequence and validation status</summary>
+        <div class="disclosure-body">
+          <div class="panel-head" style="margin-bottom:0.4rem;">
+            <span class="io-label">Input sequence</span>
+            <button class="btn btn-secondary btn-small copy-btn" data-copy-target="seqDisplay" type="button">Copy</button>
+          </div>
+          <div class="seq-view" id="seqDisplay"></div>
+          <p class="muted small" id="validationNote" style="margin:0.4rem 0 0;">Valid DNA — normalized to uppercase, whitespace removed.</p>
+        </div>
+      </details>
+    </div>
+
+    <!-- Composition: chart + compact table -->
+    <div class="panel panel-pad">
+      <div class="panel-head"><h2>Composition</h2></div>
+      <div class="charts-grid">
+        <div class="chart-panel">
+          <canvas id="compositionChart" height="215"></canvas>
+        </div>
+        <div class="chart-panel">
+          <h3>GC vs AT</h3>
+          <canvas id="gcChart" height="150"></canvas>
+          <div class="table-scroll" style="margin-top:0.55rem;">
+            <table class="data-table" id="compositionTable">
+              <thead><tr><th>Base</th><th class="num">Count</th><th class="num">Share</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <details class="disclosure">
+        <summary>Why GC content matters</summary>
+        <div class="disclosure-body">
+          <p class="muted small" style="margin:0.2rem 0 0;">
+            GC% is the fraction of the sequence that is guanine or cytosine. GC-rich DNA forms slightly
+            stronger base pairing (3 hydrogen bonds vs 2 for A–T), which is why GC content is often used
+            as a coarse descriptor of a sequence's character. In this application it is a descriptive
+            statistic of the supplied sequence only — it does not imply any biological property.
+          </p>
+        </div>
+      </details>
+    </div>
+
+    <!-- Transformation: compact pipeline -->
+    <div class="panel panel-pad">
+      <div class="panel-head">
+        <h2>Reverse complement &amp; transcription</h2>
+        <div class="head-tools">
+          <button class="btn btn-secondary btn-small copy-btn" data-copy-target="rcDisplay" type="button">Copy reverse complement</button>
+        </div>
+      </div>
+      <div class="pipe-flow">
+        <div class="pipe-stage">
+          <div class="stage-label"><span>Reverse complement</span></div>
+          <div class="seq-view small" id="rcDisplay"></div>
+        </div>
+        <div class="pipe-arrow">↓ transcription (T → U)</div>
+        <div class="pipe-stage">
+          <div class="stage-label"><span>RNA transcript</span></div>
+          <div class="seq-view small" id="rnaDisplay"></div>
+        </div>
+      </div>
+      <p class="explanation" id="explTransform"></p>
+    </div>
+
+    <!-- Translation pipeline -->
+    <div class="panel panel-pad">
+      <div class="panel-head"><h2>Translation — DNA → RNA → Codons → Protein</h2></div>
+      <div class="pipe-flow">
+        <div class="pipe-stage">
+          <div class="stage-label"><span>DNA</span></div>
+          <div class="seq-view small clip" id="dnaDisplay"></div>
+        </div>
+        <div class="pipe-arrow">↓</div>
+        <div class="pipe-stage">
+          <div class="stage-label"><span>RNA</span></div>
+          <div class="seq-view small clip" id="rnaPipeline"></div>
+        </div>
+        <div class="pipe-arrow">↓ read in triplets</div>
+        <div class="pipe-stage">
+          <div class="stage-label"><span>Protein</span></div>
+          <div class="seq-view small protein-line" id="proteinDisplay"></div>
+        </div>
+      </div>
+      <div class="metric-grid" style="margin-top:0.7rem;">
+        <div class="metric"><span class="m-label">Complete codons</span><span class="m-value" id="statCodons"></span></div>
+        <div class="metric"><span class="m-label">Amino acids</span><span class="m-value" id="statAa"></span></div>
+        <div class="metric"><span class="m-label">Stop codons</span><span class="m-value" id="statStops"></span></div>
+        <div class="metric"><span class="m-label">Leftover bases</span><span class="m-value" id="statLeftover"></span></div>
+      </div>
+      <div id="leftoverNote" class="message info hidden"></div>
+      <details class="disclosure" id="codonDisclosure">
+        <summary>View all codons</summary>
+        <div class="disclosure-body">
+          <div class="codon-grid" id="codonGrid"></div>
+        </div>
+      </details>
+    </div>
+
+    <!-- ORFs: table-first -->
+    <div class="panel panel-pad">
+      <div class="panel-head"><h2>Open reading frames</h2></div>
+      <div id="orfTableWrap"></div>
+      <p class="explanation" id="explOrfShort"></p>
+      <details class="disclosure" id="orfDisclosure">
+        <summary>View ORF sequences and proteins</summary>
+        <div class="disclosure-body" id="orfDetailBody"></div>
+      </details>
+    </div>
+
+    <!-- Actions -->
+    <div class="panel panel-pad">
+      <div class="panel-head"><h2>Actions</h2></div>
+      <div class="analyze-row" style="margin:0; padding:0; border:none;">
+        <button class="btn btn-primary" id="btnGenerateReport" type="button">Generate Lab Report</button>
+        <button class="btn btn-secondary" id="btnSave" type="button">Save Analysis</button>
+        <button class="btn btn-secondary" id="btnPrintAnalysis" type="button" onclick="window.print()">Print</button>
+        <span id="saveSpinner" class="loading-inline hidden"><span class="spinner"></span>Working…</span>
+      </div>
+      <div id="saveMessage" class="message hidden"></div>
+      <div id="reportMessage" class="message hidden"></div>
+    </div>
+  </div>
+
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/analyzer.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,219 @@
+{% extends "base.html" %}
+{% set active_page = "experiments" %}
+
+{% block title %}Virtual DNA Lab{% endblock %}
+
+{% block content %}
+<section class="page-head container">
+  <span class="kicker">Guided computational experiments</span>
+  <h1>Virtual DNA Lab</h1>
+  <p>Four guided experiments that use the same real computational engine as the Analyzer. Each experiment
+     follows the same laboratory structure: <strong>objective → input → procedure → run → observation →
+     interpretation</strong>. All computation is performed by this application's Python backend.</p>
+</section>
+
+<section class="container experiments-layout">
+
+  <!-- Experiment 1 -->
+  <div class="panel experiment" id="experiment-1">
+    <div class="experiment-head">
+      <span class="experiment-number">Experiment 01</span>
+      <h2>What's Inside This DNA?</h2>
+    </div>
+    <div class="experiment-body">
+      <div>
+        <p class="exp-objective"><strong>Objective:</strong> measure the A/T/G/C composition and GC/AT content of a DNA sequence.</p>
+        <ol class="procedure">
+          <li>Choose a demo sequence or enter your own DNA.</li>
+          <li>Run the experiment.</li>
+          <li>Read the computed observation.</li>
+        </ol>
+        <div class="demo-picker" style="display:flex; gap:0.4rem; align-items:center; flex-wrap:wrap;">
+          <select id="exp1Demo" aria-label="Demo sequence for experiment 1" style="max-width:230px;">
+            <option value="">Demo sequence…</option>
+          </select>
+          <button class="btn btn-secondary btn-small" id="exp1LoadDemo" type="button">Load</button>
+        </div>
+        <div class="exp-note"><strong>Note:</strong> results describe the supplied sequence only.</div>
+      </div>
+      <div class="experiment-io">
+        <span class="io-label">Input — DNA sequence</span>
+        <textarea id="exp1Input" rows="3" spellcheck="false" placeholder="Paste or type a DNA sequence (A, T, G, C)..."></textarea>
+        <span id="exp1Source" class="muted small"></span>
+        <button class="btn btn-primary" id="exp1Run" type="button">Run Experiment</button>
+        <span id="exp1Spinner" class="loading-inline hidden"><span class="spinner"></span>Running…</span>
+        <div id="exp1Error" class="message error hidden"></div>
+        <div id="exp1Results" class="hidden">
+          <span class="io-label">Observation</span>
+          <div class="metric-grid" style="margin:0.5rem 0;">
+            <div class="metric hot"><span class="m-label">GC content</span><span class="m-value" id="exp1GC"></span></div>
+            <div class="metric"><span class="m-label">AT content</span><span class="m-value" id="exp1AT"></span></div>
+            <div class="metric"><span class="m-label">Length</span><span class="m-value" id="exp1Length"></span></div>
+            <div class="metric"><span class="m-label">A</span><span class="m-value" id="exp1A"></span></div>
+            <div class="metric"><span class="m-label">T</span><span class="m-value" id="exp1T"></span></div>
+            <div class="metric"><span class="m-label">G</span><span class="m-value" id="exp1G"></span></div>
+            <div class="metric"><span class="m-label">C</span><span class="m-value" id="exp1C"></span></div>
+          </div>
+          <div class="chart-panel">
+            <canvas id="exp1Chart" height="190"></canvas>
+          </div>
+          <span class="io-label">Interpretation</span>
+          <p class="explanation" id="exp1Expl"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Experiment 2 -->
+  <div class="panel experiment" id="experiment-2">
+    <div class="experiment-head">
+      <span class="experiment-number">Experiment 02</span>
+      <h2>From DNA to Protein</h2>
+    </div>
+    <div class="experiment-body">
+      <div>
+        <p class="exp-objective"><strong>Objective:</strong> follow DNA → RNA → codons → protein using the standard genetic code.</p>
+        <ol class="procedure">
+          <li>Choose a demo sequence or enter your own DNA.</li>
+          <li>Run the experiment to transcribe and translate it.</li>
+          <li>Inspect the RNA, each codon with its amino acid, and the final protein chain.</li>
+        </ol>
+        <div class="demo-picker" style="display:flex; gap:0.4rem; align-items:center; flex-wrap:wrap;">
+          <select id="exp2Demo" aria-label="Demo sequence for experiment 2" style="max-width:230px;">
+            <option value="">Demo sequence…</option>
+          </select>
+          <button class="btn btn-secondary btn-small" id="exp2LoadDemo" type="button">Load</button>
+        </div>
+        <div class="exp-note"><strong>Note:</strong> translation begins at base 1; leftover bases are shown, never discarded.</div>
+      </div>
+      <div class="experiment-io">
+        <span class="io-label">Input — DNA sequence</span>
+        <textarea id="exp2Input" rows="3" spellcheck="false" placeholder="Paste or type a DNA sequence (A, T, G, C)..."></textarea>
+        <span id="exp2Source" class="muted small"></span>
+        <button class="btn btn-primary" id="exp2Run" type="button">Run Experiment</button>
+        <div id="exp2Error" class="message error hidden"></div>
+        <div id="exp2Results" class="hidden">
+          <span class="io-label">Observation</span>
+          <div class="metric-grid" style="margin:0.5rem 0;">
+            <div class="metric"><span class="m-label">Codons</span><span class="m-value" id="exp2CodonCount"></span></div>
+            <div class="metric"><span class="m-label">Amino acids</span><span class="m-value" id="exp2AaCount"></span></div>
+            <div class="metric"><span class="m-label">Stop codons</span><span class="m-value" id="exp2StopCount"></span></div>
+          </div>
+          <div class="pipe-stage">
+            <div class="stage-label"><span>Protein</span></div>
+            <div class="seq-view small protein-line" id="exp2Protein"></div>
+          </div>
+          <details class="disclosure">
+            <summary>View RNA and all codons</summary>
+            <div class="disclosure-body">
+              <div class="pipe-stage"><div class="stage-label"><span>RNA</span></div><div class="seq-view small" id="exp2Rna"></div></div>
+              <div class="codon-grid" id="exp2Codons"></div>
+            </div>
+          </details>
+          <div id="exp2Leftover" class="message info hidden"></div>
+          <span class="io-label">Interpretation</span>
+          <p class="explanation" id="exp2Expl"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Experiment 3 -->
+  <div class="panel experiment" id="experiment-3">
+    <div class="experiment-head">
+      <span class="experiment-number">Experiment 03</span>
+      <h2>What Changed?</h2>
+    </div>
+    <div class="experiment-body">
+      <div>
+        <p class="exp-objective"><strong>Objective:</strong> locate every difference between a reference and a sample sequence.</p>
+        <ol class="procedure">
+          <li>Enter a reference and a sample sequence, or load a demo pair.</li>
+          <li>Run the experiment to compare them base by base.</li>
+          <li>Inspect matches, differences, similarity and the mismatch table.</li>
+        </ol>
+        <div class="demo-picker" style="display:flex; gap:0.4rem; align-items:center; flex-wrap:wrap;">
+          <select id="exp3Demo" aria-label="Demo pair for experiment 3" style="max-width:230px;">
+            <option value="">Demo pair…</option>
+          </select>
+          <button class="btn btn-secondary btn-small" id="exp3LoadDemo" type="button">Load</button>
+        </div>
+        <div class="exp-note"><strong>Note:</strong> sequence differences alone do not establish a mutation, disease or identity.</div>
+      </div>
+      <div class="experiment-io">
+        <span class="io-label">Input — reference DNA</span>
+        <textarea id="exp3Ref" rows="2" spellcheck="false" placeholder="Reference sequence..."></textarea>
+        <span class="io-label">Input — sample DNA</span>
+        <textarea id="exp3Sample" rows="2" spellcheck="false" placeholder="Sample sequence..."></textarea>
+        <span id="exp3Source" class="muted small"></span>
+        <button class="btn btn-primary" id="exp3Run" type="button">Run Experiment</button>
+        <div id="exp3Error" class="message error hidden"></div>
+        <div id="exp3Results" class="hidden">
+          <span class="io-label">Observation</span>
+          <div class="metric-grid" style="margin:0.5rem 0;">
+            <div class="metric hot"><span class="m-label">Similarity</span><span class="m-value" id="exp3Similarity"></span></div>
+            <div class="metric"><span class="m-label">Compared</span><span class="m-value" id="exp3Compared"></span></div>
+            <div class="metric"><span class="m-label">Matches</span><span class="m-value match" id="exp3Matches"></span></div>
+            <div class="metric"><span class="m-label">Differences</span><span class="m-value diff" id="exp3Diffs"></span></div>
+          </div>
+          <div class="table-scroll">
+            <table class="data-table" id="exp3Table">
+              <thead><tr><th class="num">Position</th><th>Reference</th><th>Sample</th><th>Status</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <div id="exp3NoMismatch" class="message ok hidden">Every compared position matched.</div>
+          <div class="chart-panel" style="margin-top:0.55rem;">
+            <canvas id="exp3Chart" height="160"></canvas>
+          </div>
+          <span class="io-label">Interpretation</span>
+          <p class="explanation" id="exp3Expl"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Experiment 4 -->
+  <div class="panel experiment" id="experiment-4">
+    <div class="experiment-head">
+      <span class="experiment-number">Experiment 04</span>
+      <h2>Find the Coding Region</h2>
+    </div>
+    <div class="experiment-body">
+      <div>
+        <p class="exp-objective"><strong>Objective:</strong> find open reading frames — ATG…stop regions in the three forward reading frames.</p>
+        <ol class="procedure">
+          <li>Choose a demo sequence or enter your own DNA.</li>
+          <li>Run the ORF search across the three forward reading frames.</li>
+          <li>Inspect each ORF's frame, positions, length, DNA and translated protein.</li>
+        </ol>
+        <div class="demo-picker" style="display:flex; gap:0.4rem; align-items:center; flex-wrap:wrap;">
+          <select id="exp4Demo" aria-label="Demo sequence for experiment 4" style="max-width:230px;">
+            <option value="">Demo sequence…</option>
+          </select>
+          <button class="btn btn-secondary btn-small" id="exp4LoadDemo" type="button">Load</button>
+        </div>
+        <div class="exp-note"><strong>Note:</strong> an ORF is a candidate coding region, not proof of a gene.</div>
+      </div>
+      <div class="experiment-io">
+        <span class="io-label">Input — DNA sequence</span>
+        <textarea id="exp4Input" rows="3" spellcheck="false" placeholder="Paste or type a DNA sequence (A, T, G, C)..."></textarea>
+        <span id="exp4Source" class="muted small"></span>
+        <button class="btn btn-primary" id="exp4Run" type="button">Run Experiment</button>
+        <div id="exp4Error" class="message error hidden"></div>
+        <div id="exp4Results" class="hidden">
+          <span class="io-label">Observation</span>
+          <div id="exp4Orfs" style="margin:0.5rem 0;"></div>
+          <span class="io-label">Interpretation</span>
+          <p class="explanation" id="exp4Expl"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/experiments.js') }}"></script>
+{% endblock %}

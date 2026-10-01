@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% set active_page = "comparison" %}
+
+{% block title %}Compare DNA{% endblock %}
+
+{% block content %}
+<section class="page-head container">
+  <span class="kicker">Sequence-level comparison</span>
+  <h1>Compare Two DNA Sequences</h1>
+  <p>Compare a reference and a sample base by base. Sequence differences alone do not establish
+     biological or medical significance.</p>
+</section>
+
+<section class="container comparison-layout">
+
+  <div class="panel panel-pad">
+    <div class="mode-banner" style="margin-bottom:0.85rem;">
+      <span class="label">Input:</span>
+      <span id="compareSourceStatus" class="status-line status-user">Enter both sequences</span>
+      <span style="flex:1"></span>
+      <button class="btn btn-secondary btn-small" id="btnLoadExample" type="button">Load Example</button>
+      <button class="btn btn-secondary btn-small" id="btnClearCompare" type="button">Clear</button>
+    </div>
+
+    <div class="pair-inputs">
+      <div class="pair-field">
+        <label for="referenceInput">Reference DNA</label>
+        <textarea id="referenceInput" rows="4" spellcheck="false"
+          placeholder="Paste the reference DNA sequence (A, T, G, C)..."></textarea>
+        <span class="muted small" id="refLenLabel"></span>
+      </div>
+      <div class="pair-field">
+        <label for="sampleInput">Sample DNA</label>
+        <textarea id="sampleInput" rows="4" spellcheck="false"
+          placeholder="Paste the sample DNA sequence (A, T, G, C)..."></textarea>
+        <span class="muted small" id="sampleLenLabel"></span>
+      </div>
+    </div>
+
+    <div class="analyze-row">
+      <button class="btn btn-primary" id="btnCompare" type="button">Compare</button>
+      <span id="compareSpinner" class="loading-inline hidden"><span class="spinner"></span>Comparing…</span>
+      <span class="row-note">Only the overlapping region of the two sequences is compared.</span>
+    </div>
+
+    <div id="examplePanel" class="demo-preview hidden" style="margin-top:0.85rem;">
+      <div class="pv-head">
+        <span class="pv-name">Educational example pairs</span>
+        <span class="pv-len">built-in demo data (CSV)</span>
+      </div>
+      <div class="demo-list" id="exampleList"></div>
+    </div>
+
+    <div id="compareError" class="message error hidden" role="alert"></div>
+  </div>
+
+  <div id="compareEmpty" class="empty-state">
+    <h3>No comparison yet</h3>
+    <p>Enter a reference and a sample sequence, or load a built-in example pair.</p>
+    <div class="actions">
+      <button class="btn btn-primary" id="emptyLoadExample" type="button">Load Example</button>
+    </div>
+  </div>
+
+  <div id="compareResults" class="results hidden">
+    <div class="panel results-hero">
+      <div class="rh-top">
+        <span class="rh-title">Comparison results</span>
+        <span id="compareSourceChip" class="status-line status-demo"></span>
+      </div>
+      <div class="metric-grid">
+        <div class="metric hot"><span class="m-label">Similarity</span><span class="m-value" id="statSimilarity"></span></div>
+        <div class="metric"><span class="m-label">Difference</span><span class="m-value" id="statDifference"></span></div>
+        <div class="metric"><span class="m-label">Positions compared</span><span class="m-value" id="statCompared"></span></div>
+        <div class="metric"><span class="m-label">Matches</span><span class="m-value match" id="statMatches"></span></div>
+        <div class="metric"><span class="m-label">Differences</span><span class="m-value diff" id="statDiffs"></span></div>
+      </div>
+      <p class="explanation" id="explComparisonShort"></p>
+    </div>
+
+    <div class="panel panel-pad">
+      <div class="panel-head"><h2>Alignment view</h2></div>
+      <div class="alignment">
+        <div class="align-row"><span class="align-label">Reference</span><div class="seq-view" id="alignRef"></div></div>
+        <div class="align-row"><span class="align-label">Sample</span><div class="seq-view" id="alignSample"></div></div>
+        <div class="align-row"><span class="align-label">Diff marks</span><div class="seq-view small mono markers" id="alignMarkers"></div></div>
+      </div>
+    </div>
+
+    <div class="panel panel-pad">
+      <div class="panel-head"><h2>Mismatch table</h2></div>
+      <div class="table-scroll">
+        <table class="data-table" id="mismatchTable">
+          <thead><tr><th class="num">Position</th><th>Reference base</th><th>Sample base</th><th>Status</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div id="noMismatches" class="message ok hidden">Every compared position matched — the two sequences are identical over the compared region.</div>
+      <div id="unalignedNote" class="message info hidden"></div>
+      <div class="charts-grid" style="margin-top:0.85rem;">
+        <div class="chart-panel">
+          <h3>Matching vs different positions</h3>
+          <canvas id="comparisonChart" height="170"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/comparison.js') }}"></script>
+{% endblock %}

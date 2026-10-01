@@ -1,0 +1,51 @@
+{
+  "sequences": [
+    {
+      "id": "insulin_fragment",
+      "name": "Human Insulin Signal Fragment (educational)",
+      "description": "A short fragment modelled on the start of the human preproinsulin coding region. Contains a clear ATG start codon and a complete open reading frame, so it demonstrates composition, transcription, translation and ORF detection in one sequence.",
+      "sequence": "ATGGCCCTGTGGATGCGCCTCCTGCCCCTGCTGGCGCTGCTGGCCCTCTGGGGACCTGACCCAGCCGCAGCCTTTGTGAACCAACACCTGTGCGGCTCACACCTGGTGGAAGCTCTCTACCTAGTGTGCGGGGAACGAGGCTTCTTCTACACACCCAAGACCCGCCGGGAGGCAGAGGACCTGCAGGTGGGGCAGGTGGAGCTGGGCGGGGGCCCTGGTGCAGGCAGCCTGCAGCCCTTGGCCCTGGAGGGGTCCCTGCAGAAGCGTGGCATTGTGGAACAATGCTGTACCAGCATCTGCTCCCTCTACCAGCTGGAGAACTACTGCAACTAG"
+    },
+    {
+      "id": "gc_rich",
+      "name": "GC-Rich Synthetic Fragment",
+      "description": "A synthetic GC-rich sequence with no stop codons in frame 1. Useful for demonstrating high GC content and an open reading frame that runs off the end of the supplied sequence.",
+      "sequence": "GCGCCGGCGGCATGGCGGCGCTGGCGCCGGCGATGGCGGCCGCCTGCGCGGCGCCGGCGGCATGGCGGCCGCGGCCGCGCCATGGCGGCGCTGGCGCCG"
+    },
+    {
+      "id": "at_rich",
+      "name": "AT-Rich Synthetic Fragment",
+      "description": "A short AT-rich sequence with no start codons. Good for demonstrating low GC content and the 'no ORF detected' outcome.",
+      "sequence": "ATTATATAATATTAATATATATTAAATATAATTATAATATTAATATATAATTAAT"
+    },
+    {
+      "id": "short_demo",
+      "name": "Short Teaching Sequence",
+      "description": "A compact 30-base sequence for quick classroom walkthroughs: clean codon structure with a stop codon at the end.",
+      "sequence": "ATGGCCTTTCAGTTCACCTAA"
+    }
+  ],
+  "comparisons": [
+    {
+      "id": "point_mutation",
+      "name": "Reference vs Sample — three point differences",
+      "description": "The same 60-base fragment with two single-base substitutions introduced. Demonstrates the mismatch table, similarity percentage and comparison chart clearly.",
+      "reference": "ATGGCCCTGTGGATGCGCCTCCTGCCCCTGCTGGCGCTGCTGGCCCTCTGGGGACCTGACCCAG",
+      "sample": "ATGGCCCTGTGGATGCGCCTCCTGCCCCTGCTGGCGCTGCTGGCCCTCCGGGGACCTGACCCAT"
+    },
+    {
+      "id": "identical_pair",
+      "name": "Reference vs Sample — identical sequences",
+      "description": "Two identical sequences, showing a 100% similarity result with an empty mismatch table.",
+      "reference": "ATGAAATTTCCCGGGTTTAAAGGGCCCTTTAAA",
+      "sample": "ATGAAATTTCCCGGGTTTAAAGGGCCCTTTAAA"
+    },
+    {
+      "id": "length_mismatch",
+      "name": "Reference vs Sample — unequal lengths",
+      "description": "The sample is shorter than the reference, demonstrating how the comparison handles unaligned trailing bases.",
+      "reference": "ATGGCCCTGTGGATGCGCCTCCTGCCCCTGCTGGCGCTGCTGGCCCTCTGGGGACCTGACCCAGCCGCAGCCTTTGTGAACCAACACCTGTGCGGCTC",
+      "sample": "ATGGCCCTGTGGATGCGCCTCCTGCCCCTGCTGGCGCTGCTGGCCCTCTGGGGACCTGACCCAGCCG"
+    }
+  ]
+}

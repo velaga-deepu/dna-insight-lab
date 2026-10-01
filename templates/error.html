@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% set active_page = "" %}
+
+{% block title %}Error {{ code }}{% endblock %}
+
+{% block content %}
+<section class="container error-page">
+  <div class="panel error-panel">
+    <span class="error-code">{{ code }}</span>
+    <h1>{{ message }}</h1>
+    <p>The page or resource you requested could not be loaded.</p>
+    <a href="{{ url_for('index') }}" class="btn btn-primary">Back to DNA Insight Lab</a>
+  </div>
+</section>
+{% endblock %}

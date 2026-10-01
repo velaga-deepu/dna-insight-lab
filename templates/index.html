@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% set active_page = "index" %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<section class="hero">
+  <div class="container hero-inner">
+    <div>
+      <span class="eyebrow">Educational bioinformatics</span>
+      <h1>DNA Insight Lab</h1>
+      <p class="lede">
+        Compute composition, GC/AT content, reverse complement, RNA transcripts, protein
+        translation, codons and open reading frames from any DNA sequence. Compare a sample
+        against a reference and document the results in a lab report. All computation runs
+        locally in this application.
+      </p>
+      <div class="hero-actions">
+        <a href="{{ url_for('analyzer_page') }}" class="btn btn-primary">Open the Analyzer</a>
+        <a href="{{ url_for('analyzer_page') }}?demo=short_demo" class="btn btn-secondary">Analyze a demo sequence</a>
+      </div>
+    </div>
+    <div class="pipeline" aria-label="Platform workflow">
+      <div class="pipeline-title">Workflow</div>
+      <div class="pipeline-steps">
+        <span class="pipe-step hot">DNA Input</span><span class="pipe-arrow">↓</span>
+        <span class="pipe-step">Validate</span><span class="pipe-arrow">↓</span>
+        <span class="pipe-step">Analyze</span><span class="pipe-arrow">↓</span>
+        <span class="pipe-step">Translate</span><span class="pipe-arrow">↓</span>
+        <span class="pipe-step">Compare</span><span class="pipe-arrow">↓</span>
+        <span class="pipe-step">Interpret</span><span class="pipe-arrow">↓</span>
+        <span class="pipe-step">Document</span>
+      </div>
+      <div class="metric-grid" id="homeDemoMetrics" style="margin-bottom:0.7rem;">
+        <div class="metric hot"><span class="m-label">GC content</span><span class="m-value" id="homeGC">—</span></div>
+        <div class="metric"><span class="m-label">AT content</span><span class="m-value" id="homeAT">—</span></div>
+        <div class="metric"><span class="m-label">Length</span><span class="m-value" id="homeLen">—</span></div>
+      </div>
+      <p class="muted small" style="margin:0;" id="homeDemoLine">
+        Live example: computing the built-in teaching sequence now…
+      </p>
+    </div>
+  </div>
+</section>
+
+<section class="section container">
+  <div class="home-columns">
+    <div class="panel panel-pad">
+      <h2 class="section-title">What the engine computes</h2>
+      <p class="section-sub" style="margin-bottom:0.4rem;">Deterministic Python computation on the exact
+        sequence you supply — every result is explained briefly, with full detail available on request.</p>
+      <ul class="feature-list">
+        <li><span class="f-num">01</span><span><strong>Validation &amp; composition</strong> — A/T/G/C counts and percentages, GC% and AT%</span></li>
+        <li><span class="f-num">02</span><span><strong>Transformations</strong> — reverse complement and DNA→RNA transcription</span></li>
+        <li><span class="f-num">03</span><span><strong>Translation</strong> — codons, amino acids, stop codons and leftover bases</span></li>
+        <li><span class="f-num">04</span><span><strong>ORF detection</strong> — three forward reading frames, 1-based positions</span></li>
+        <li><span class="f-num">05</span><span><strong>Comparison</strong> — reference vs sample with a position-level mismatch table</span></li>
+        <li><span class="f-num">06</span><span><strong>Reports</strong> — printable lab-style reports saved to the built-in database</span></li>
+      </ul>
+    </div>
+    <div class="panel panel-pad">
+      <h2 class="section-title">Go straight to the tools</h2>
+      <ul class="feature-list">
+        <li><span class="f-num">→</span><span><a href="{{ url_for('analyzer_page') }}">Analyzer</a> — full single-sequence analysis with result-first output</span></li>
+        <li><span class="f-num">→</span><span><a href="{{ url_for('comparison_page') }}">Compare DNA</a> — reference vs sample mismatch investigation</span></li>
+        <li><span class="f-num">→</span><span><a href="{{ url_for('experiments_page') }}">Virtual DNA Lab</a> — four guided computational experiments</span></li>
+        <li><span class="f-num">→</span><span><a href="{{ url_for('reports_page') }}">Reports</a> — saved analyses and printable lab reports</span></li>
+      </ul>
+      <p class="muted small" style="margin:0.7rem 0 0;">
+        All analysis runs locally in this application — Python, Flask, Biopython and SQLite.
+        No external AI or analysis service is involved.
+      </p>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // Compute a real example on the home page — the product is the demonstration.
+  document.addEventListener("DOMContentLoaded", async () => {
+    const demos = await getDemoSequences();
+    const demo = demos.find((d) => d.id === "short_demo") || demos[0];
+    if (!demo) {
+      setText($("homeDemoLine"), "");
+      return;
+    }
+    const result = await postJSON("/api/analyze", { sequence: demo.sequence });
+    if (result.ok && result.data.valid) {
+      const a = result.data.analysis;
+      setText($("homeGC"), a.gc_percent.toFixed(2) + "%");
+      setText($("homeAT"), a.at_percent.toFixed(2) + "%");
+      setText($("homeLen"), a.length + " bp");
+      setText($("homeDemoLine"), `Live example: "${demo.name}" (${a.length} bp), computed by this server just now.`);
+    } else {
+      setText($("homeDemoLine"), "");
+    }
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}DNA Insight Lab{% endblock %} — DNA Insight Lab</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%23111c30'/><path d='M11 6v20M21 6v20M11 11h10M11 16h10M11 21h10' stroke='%2338b6d8' stroke-width='2.2' stroke-linecap='round'/></svg>">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="{{ url_for('index') }}" class="brand">
+        <span class="brand-mark" aria-hidden="true">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M7 3v18M17 3v18M7 8h10M7 13h10M7 18h10"/></svg>
+        </span>
+        <span class="brand-text">
+          <strong>DNA Insight Lab</strong>
+          <small>Educational bioinformatics</small>
+        </span>
+      </a>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation" aria-expanded="false">☰</button>
+      <nav class="site-nav" id="siteNav" aria-label="Main navigation">
+        <a href="{{ url_for('index') }}" class="{{ 'active' if active_page == 'index' }}">Home</a>
+        <a href="{{ url_for('analyzer_page') }}" class="{{ 'active' if active_page == 'analyzer' }}">Analyzer</a>
+        <a href="{{ url_for('comparison_page') }}" class="{{ 'active' if active_page == 'comparison' }}">Compare DNA</a>
+        <a href="{{ url_for('experiments_page') }}" class="{{ 'active' if active_page == 'experiments' }}">Virtual DNA Lab</a>
+        <a href="{{ url_for('reports_page') }}" class="{{ 'active' if active_page == 'reports' }}">Reports</a>
+        <a href="{{ url_for('about_page') }}" class="{{ 'active' if active_page == 'about' }}">About</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="site-main">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p class="footer-disclaimer">
+        <strong>Educational use only.</strong>
+        DNA Insight Lab is an educational bioinformatics tool. It does not provide medical diagnosis,
+        clinical interpretation, or forensic identification. Sequence differences alone do not establish
+        biological or medical significance.
+      </p>
+      <p class="footer-meta">
+        All analysis runs locally — Python · Flask · Biopython · SQLite. No external AI or analysis service is used.
+      </p>
+    </div>
+  </footer>
+
+  <script src="{{ url_for('static', filename='js/vendor/chart.umd.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

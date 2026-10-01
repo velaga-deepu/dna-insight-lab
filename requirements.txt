@@ -1,0 +1,2 @@
+Flask==3.0.3
+Biopython==1.84
